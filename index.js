@@ -291,27 +291,12 @@ app.get("/contests/popular", async (req, res) => {
       res.send(result);
     });
 
-    app.post("/declare-winner", async (req, res) => {
-      const { contestId, winnerName, winnerPhoto, winnerEmail } = req.body;
+   
 
-      const result = await contests.updateOne(
-        { _id: new ObjectId(contestId) },
-        {
-          $set: {
-            winner: { 
-              name: winnerName,
-              photo: winnerPhoto,
-              email: winnerEmail,
-              
-            },
-          },
-        }
-      );
-
-      res.send({ success: true, result });
+    app.get("/wins/:email", async (req, res) => {
+      const result = await contests.find({ "winner.email": req.params.email }).toArray();
+      res.send(result);
     });
-
-    
 
     app.get("/leaderboard", async (req, res) => {
       const pipeline = [
