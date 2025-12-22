@@ -286,12 +286,27 @@ app.get("/contests/popular", async (req, res) => {
       res.send({ success: true, result });
     });
 
-    app.get("/submissions/:id", async (req, res) => {
-      const result = await submissions.find({ contestId: req.params.id }).toArray();
-      res.send(result);
-    });
+    
 
-   
+    app.post("/declare-winner", async (req, res) => {
+      const { contestId, winnerName, winnerPhoto, winnerEmail } = req.body;
+
+      const result = await contests.updateOne(
+        { _id: new ObjectId(contestId) },
+        {
+          $set: {
+            winner: { 
+              name: winnerName,
+              photo: winnerPhoto,
+              email: winnerEmail,
+              
+            },
+          },
+        }
+      );
+
+      res.send({ success: true, result });
+    });
 
     app.get("/wins/:email", async (req, res) => {
       const result = await contests.find({ "winner.email": req.params.email }).toArray();
