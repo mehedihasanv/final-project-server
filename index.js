@@ -273,15 +273,13 @@ app.get("/contests/popular", async (req, res) => {
       res.send({ success: true, result });
     });
 
-    app.get("/participated/:email", async (req, res) => {
-      const pay = await payments.find({ email: req.params.email }).toArray();
-      const ids = pay.map((p) => new ObjectId(p.contestId));
-      const result = await contests.find({ _id: { $in: ids } }).toArray();
-      res.send(result);
-    });
+   
 
     // ✅ Submission Routes
-    
+    app.post("/submission", async (req, res) => {
+      const result = await submissions.insertOne(req.body);
+      res.send({ success: true, result });
+    });
 
     app.get("/submissions/:id", async (req, res) => {
       const result = await submissions.find({ contestId: req.params.id }).toArray();
