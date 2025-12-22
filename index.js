@@ -311,10 +311,7 @@ app.get("/contests/popular", async (req, res) => {
       res.send({ success: true, result });
     });
 
-    app.get("/wins/:email", async (req, res) => {
-      const result = await contests.find({ "winner.email": req.params.email }).toArray();
-      res.send(result);
-    });
+    
 
     app.get("/leaderboard", async (req, res) => {
       const pipeline = [
@@ -335,7 +332,11 @@ app.get("/contests/popular", async (req, res) => {
       res.send(result);
     });
 
-  
+    app.get("/user-stats/:email", async (req, res) => {
+      const participated = await payments.countDocuments({ email: req.params.email });
+      const won = await contests.countDocuments({ "winner.email": req.params.email });
+      res.send({ participated, won });
+    });
 
     // ✅ Start Server
     app.listen(port, () => console.log(`✅ Server running on port ${port}`));
