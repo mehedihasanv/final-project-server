@@ -281,12 +281,12 @@ app.get("/contests/popular", async (req, res) => {
     });
 
     // ✅ Submission Routes
-    app.post("/submission", async (req, res) => {
-      const result = await submissions.insertOne(req.body);
-      res.send({ success: true, result });
-    });
-
     
+
+    app.get("/submissions/:id", async (req, res) => {
+      const result = await submissions.find({ contestId: req.params.id }).toArray();
+      res.send(result);
+    });
 
     app.post("/declare-winner", async (req, res) => {
       const { contestId, winnerName, winnerPhoto, winnerEmail } = req.body;
