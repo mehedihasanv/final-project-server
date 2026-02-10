@@ -78,15 +78,12 @@
 //   user.role = "user";
 //   const result = await users.insertOne(user);
 
-  
 //   res.send({
 //     success: true,
 //     insertedId: result.insertedId,
 //     user,
 //   });
 // });
-
-
 
 //    app.get("/users", async (req, res) => {
 //   const page = parseInt(req.query.page) || 1;
@@ -99,7 +96,6 @@
 //   res.send({ users: usersList, total });
 // });
 
-
 //     app.patch("/update-user/:email", async (req, res) => {
 //   const email = req.params.email;
 //   const updateData = req.body; // { bio: "...", profilePic: "..." }
@@ -111,7 +107,6 @@
 
 //   res.send(result);
 // });
-
 
 //     app.get("/users/role/:email", async (req, res) => {
 //       const email = req.params.email;
@@ -126,7 +121,6 @@
 //       res.send(result);
 //     });
 
-   
 // app.get("/contests", async (req, res) => {
 //   const { page = 1, limit = 10, type, search } = req.query;
 
@@ -136,7 +130,7 @@
 
 //   if (search) {
 //     query.$or = [
-      
+
 //       { type: { $regex: search, $options: "i" } }         // contest type ✅
 //     ];
 //   }
@@ -151,15 +145,12 @@
 //   res.send({ contests: result, total });
 // });
 
-
-
 //     // ✅ Contest Routes
 //     app.post("/contests", async (req, res) => {
 //       const result = await contests.insertOne(req.body);
 //       res.send(result);
 //     });
 
-   
 // app.get("/contests", async (req, res) => {
 //   const { page = 1, limit = 10, type, search } = req.query;
 //   console.log("👉 Query Params:", { page, limit, type, search });
@@ -201,9 +192,6 @@
 
 //   res.send({ contests: result, total });
 // });
-
-
-
 
 //     app.get("/contest/:id", async (req, res) => {
 //       const result = await contests.findOne({ _id: new ObjectId(req.params.id) });
@@ -257,7 +245,6 @@
 
 // });
 
-
 //     // ✅ Payment Routes
 //     app.post("/payment", async (req, res) => {
 //       const { contestId, email, price } = req.body;
@@ -302,11 +289,11 @@
 //         { _id: new ObjectId(contestId) },
 //         {
 //           $set: {
-//             winner: { 
+//             winner: {
 //               name: winnerName,
 //               photo: winnerPhoto,
 //               email: winnerEmail,
-              
+
 //             },
 //           },
 //         }
@@ -325,7 +312,7 @@
 //         { $match: { winner: { $exists: true } } },
 //         {
 //           $group: {
-            
+
 //             _id: "$winner.email",
 //             name: { $first: "$winner.name" },
 //             photo: { $first: "$winner.photo" },
@@ -354,19 +341,49 @@
 
 // run()
 
-
-
-
-const express = require('express')
-const cors =require ('cors')
-const app = express()
-require('dotenv').config()
-const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
-const port = process.env.PORT || 3000
+const express = require("express");
+const cors = require("cors");
+const app = express();
+require("dotenv").config();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Allows all origins
+    credentials: false, // Note: credentials must be false when origin is "*"
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       const allowedOrigins = [
+//         "http://localhost:5173",
+//         "https://roaring-bubblegum-26fe9c.netlify.app"
+//       ];
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"]
+//   })
+// );
+
+// app.use(
+//   cors({
+//     origin: ["http://localhost:5173","http://localhost:5174","https://roaring-bubblegum-26fe9c.netlify.app"],
+//     credentials: true,
+//   })
+// );
+// app.use(cors());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.nqmctgu.mongodb.net/?appName=Cluster0`;
 
@@ -375,7 +392,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -394,48 +411,40 @@ async function run() {
     });
 
     // ✅ User Routes
-  app.post("/users", async (req, res) => {
-  const user = req.body;
-  const exists = await users.findOne({ email: user.email });
-  if (exists) return res.send({ message: "User exists" });
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const exists = await users.findOne({ email: user.email });
+      if (exists) return res.send({ message: "User exists" });
 
-  user.role = "user";
-  const result = await users.insertOne(user);
+      user.role = "user";
+      const result = await users.insertOne(user);
 
-  
-  res.send({
-    success: true,
-    insertedId: result.insertedId,
-    user,
-  });
-});
+      res.send({
+        success: true,
+        insertedId: result.insertedId,
+        user,
+      });
+    });
 
+    app.get("/users", async (req, res) => {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
 
+      const usersList = await users.find().skip(skip).limit(limit).toArray();
+      const total = await users.countDocuments();
 
-   app.get("/users", async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-
-  const usersList = await users.find().skip(skip).limit(limit).toArray();
-  const total = await users.countDocuments();
-
-  res.send({ users: usersList, total });
-});
-
+      res.send({ users: usersList, total });
+    });
 
     app.patch("/update-user/:email", async (req, res) => {
-  const email = req.params.email;
-  const updateData = req.body; // { bio: "...", profilePic: "..." }
+      const email = req.params.email;
+      const updateData = req.body; // { bio: "...", profilePic: "..." }
 
-  const result = await users.updateOne(
-    { email },
-    { $set: updateData }
-  );
+      const result = await users.updateOne({ email }, { $set: updateData });
 
-  res.send(result);
-});
-
+      res.send(result);
+    });
 
     app.get("/users/role/:email", async (req, res) => {
       const email = req.params.email;
@@ -450,32 +459,28 @@ async function run() {
       res.send(result);
     });
 
-   
-app.get("/contests", async (req, res) => {
-  const { page = 1, limit = 10, type, search } = req.query;
+    app.get("/contests", async (req, res) => {
+      const { page = 1, limit = 10, type, search } = req.query;
 
-  const query = { status: "confirmed" };
+      const query = { status: "confirmed" };
 
-  if (type && type !== "all") query.type = type;
+      if (type && type !== "all") query.type = type;
 
-  if (search) {
-    query.$or = [
-      
-      { type: { $regex: search, $options: "i" } }         // contest type ✅
-    ];
-  }
+      if (search) {
+        query.$or = [
+          { type: { $regex: search, $options: "i" } }, // contest type ✅
+        ];
+      }
 
-  const total = await contests.countDocuments(query);
-  const result = await contests
-    .find(query)
-    .skip((parseInt(page) - 1) * parseInt(limit))
-    .limit(parseInt(limit))
-    .toArray();
+      const total = await contests.countDocuments(query);
+      const result = await contests
+        .find(query)
+        .skip((parseInt(page) - 1) * parseInt(limit))
+        .limit(parseInt(limit))
+        .toArray();
 
-  res.send({ contests: result, total });
-});
-
-
+      res.send({ contests: result, total });
+    });
 
     // ✅ Contest Routes
     app.post("/contests", async (req, res) => {
@@ -483,79 +488,81 @@ app.get("/contests", async (req, res) => {
       res.send(result);
     });
 
-   
-app.get("/contests", async (req, res) => {
-  const { page = 1, limit = 10, type, search } = req.query;
-  console.log("👉 Query Params:", { page, limit, type, search });
+    app.get("/contests", async (req, res) => {
+      const { page = 1, limit = 10, type, search } = req.query;
+      console.log("👉 Query Params:", { page, limit, type, search });
 
-  const query = { status: "confirmed" };
-  if (type && type !== "all") query.type = type;
-  if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } }
-    ];
-  }
-  console.log("👉 MongoDB Query:", query);
+      const query = { status: "confirmed" };
+      if (type && type !== "all") query.type = type;
+      if (search) {
+        query.$or = [
+          { title: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ];
+      }
+      console.log("👉 MongoDB Query:", query);
 
-  const total = await contests.countDocuments(query);
-  console.log("👉 Total Contests Found:", total);
+      const total = await contests.countDocuments(query);
+      console.log("👉 Total Contests Found:", total);
 
-  const result = await contests
-    .find(query)
-    .skip((parseInt(page) - 1) * parseInt(limit))
-    .limit(parseInt(limit))
-    .toArray();
+      const result = await contests
+        .find(query)
+        .skip((parseInt(page) - 1) * parseInt(limit))
+        .limit(parseInt(limit))
+        .toArray();
 
-  console.log("👉 Result Contests:", result);
+      console.log("👉 Result Contests:", result);
 
-  res.send({ contests: result, total });
-});
-app.get("/admin/contests", async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10; // প্রতি পেজে 10 contest default
-  const skip = (page - 1) * limit;
+      res.send({ contests: result, total });
+    });
+    app.get("/admin/contests", async (req, res) => {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10; // প্রতি পেজে 10 contest default
+      const skip = (page - 1) * limit;
 
-  const total = await contests.countDocuments(); // সব contest count করবে
-  const result = await contests
-    .find() // কোনো filter নেই, সব contest দেখাবে
-    .skip(skip)
-    .limit(limit)
-    .toArray();
+      const total = await contests.countDocuments(); // সব contest count করবে
+      const result = await contests
+        .find() // কোনো filter নেই, সব contest দেখাবে
+        .skip(skip)
+        .limit(limit)
+        .toArray();
 
-  res.send({ contests: result, total });
-});
-
-
-
+      res.send({ contests: result, total });
+    });
 
     app.get("/contest/:id", async (req, res) => {
-      const result = await contests.findOne({ _id: new ObjectId(req.params.id) });
+      const result = await contests.findOne({
+        _id: new ObjectId(req.params.id),
+      });
       res.send(result);
     });
 
     app.get("/creator-contests/:email", async (req, res) => {
-      const result = await contests.find({ creatorEmail: req.params.email }).toArray();
+      const result = await contests
+        .find({ creatorEmail: req.params.email })
+        .toArray();
       res.send(result);
     });
 
     app.patch("/contest/:id", async (req, res) => {
       const result = await contests.updateOne(
         { _id: new ObjectId(req.params.id) },
-        { $set: req.body }
+        { $set: req.body },
       );
       res.send(result);
     });
 
-    app.delete("/contest/:id",async (req, res) => {
-      const result = await contests.deleteOne({ _id: new ObjectId(req.params.id) });
+    app.delete("/contest/:id", async (req, res) => {
+      const result = await contests.deleteOne({
+        _id: new ObjectId(req.params.id),
+      });
       res.send(result);
     });
 
     app.patch("/contests/confirm/:id", async (req, res) => {
       const result = await contests.updateOne(
         { _id: new ObjectId(req.params.id) },
-        { $set: { status: "confirmed" } }
+        { $set: { status: "confirmed" } },
       );
       res.send(result);
     });
@@ -563,24 +570,22 @@ app.get("/admin/contests", async (req, res) => {
     app.patch("/contests/reject/:id", async (req, res) => {
       const result = await contests.updateOne(
         { _id: new ObjectId(req.params.id) },
-        { $set: { status: "rejected" } }
+        { $set: { status: "rejected" } },
       );
       res.send(result);
     });
 
     // Popular contest
     // Popular contests (Top 5)
-app.get("/contests/popular", async (req, res) => {
-  const result = await contests
-    .find({ status: "confirmed" }) 
-    .sort({ participantsCount: -1 }) 
-    .limit(5)
-    .toArray();
+    app.get("/contests/popular", async (req, res) => {
+      const result = await contests
+        .find({ status: "confirmed" })
+        .sort({ participantsCount: -1 })
+        .limit(5)
+        .toArray();
 
-  res.send({ contests: result });
-
-});
-
+      res.send({ contests: result });
+    });
 
     // ✅ Payment Routes
     app.post("/payment", async (req, res) => {
@@ -588,7 +593,7 @@ app.get("/contests/popular", async (req, res) => {
 
       await contests.updateOne(
         { _id: new ObjectId(contestId) },
-        { $inc: { participantsCount: 1 } }
+        { $inc: { participantsCount: 1 } },
       );
 
       const result = await payments.insertOne({
@@ -615,7 +620,9 @@ app.get("/contests/popular", async (req, res) => {
     });
 
     app.get("/submissions/:id", async (req, res) => {
-      const result = await submissions.find({ contestId: req.params.id }).toArray();
+      const result = await submissions
+        .find({ contestId: req.params.id })
+        .toArray();
       res.send(result);
     });
 
@@ -626,21 +633,22 @@ app.get("/contests/popular", async (req, res) => {
         { _id: new ObjectId(contestId) },
         {
           $set: {
-            winner: { 
+            winner: {
               name: winnerName,
               photo: winnerPhoto,
               email: winnerEmail,
-              
             },
           },
-        }
+        },
       );
 
       res.send({ success: true, result });
     });
 
     app.get("/wins/:email", async (req, res) => {
-      const result = await contests.find({ "winner.email": req.params.email }).toArray();
+      const result = await contests
+        .find({ "winner.email": req.params.email })
+        .toArray();
       res.send(result);
     });
 
@@ -649,7 +657,6 @@ app.get("/contests/popular", async (req, res) => {
         { $match: { winner: { $exists: true } } },
         {
           $group: {
-            
             _id: "$winner.email",
             name: { $first: "$winner.name" },
             photo: { $first: "$winner.photo" },
@@ -664,15 +671,18 @@ app.get("/contests/popular", async (req, res) => {
     });
 
     app.get("/user-stats/:email", async (req, res) => {
-      const participated = await payments.countDocuments({ email: req.params.email });
-      const won = await contests.countDocuments({ "winner.email": req.params.email });
+      const participated = await payments.countDocuments({
+        email: req.params.email,
+      });
+      const won = await contests.countDocuments({
+        "winner.email": req.params.email,
+      });
       res.send({ participated, won });
     });
 
-
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -680,10 +690,10 @@ app.get("/contests/popular", async (req, res) => {
 }
 run().catch(console.dir);
 
-app.get('/', (req, res) => {
-  res.send('Server Running!')
-})
+app.get("/", (req, res) => {
+  res.send("Server Running!");
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});
