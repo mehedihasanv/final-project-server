@@ -5,7 +5,7 @@ require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 3000;
 
-// middleware
+
 app.use(express.json());
 app.use(
   cors({
@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
   },
 });
 
-// Initialize database connection
+
 let isConnected = false;
 
 async function connectDB() {
@@ -42,14 +42,14 @@ async function connectDB() {
   }
 }
 
-// Database collections
+
 const db = client.db("contestDB");
 const users = db.collection("users");
 const contests = db.collection("contests");
 const payments = db.collection("payments");
 const submissions = db.collection("submissions");
 
-// Root route
+
 app.get("/", (req, res) => {
   res.send("Server Running!");
 });
@@ -58,7 +58,7 @@ app.post("/logout", (req, res) => {
   res.clearCookie("token").send({ success: true });
 });
 
-// ✅ User Routes
+
 app.post("/users", async (req, res) => {
   try {
     await connectDB();
@@ -133,7 +133,7 @@ app.patch("/users/role/:email", async (req, res) => {
   }
 });
 
-// ✅ Contest Routes
+
 app.post("/contests", async (req, res) => {
   try {
     await connectDB();
@@ -269,7 +269,7 @@ app.patch("/contests/reject/:id", async (req, res) => {
   }
 });
 
-// Popular contests (Top 5)
+
 app.get("/contests/popular", async (req, res) => {
   try {
     await connectDB();
@@ -285,7 +285,7 @@ app.get("/contests/popular", async (req, res) => {
   }
 });
 
-// ✅ Payment Routes
+
 app.post("/payment", async (req, res) => {
   try {
     await connectDB();
@@ -321,7 +321,7 @@ app.get("/participated/:email", async (req, res) => {
   }
 });
 
-// ✅ Submission Routes
+
 app.post("/submission", async (req, res) => {
   try {
     await connectDB();
@@ -432,12 +432,12 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
-// For local development only
+
 if (process.env.NODE_ENV !== "production") {
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
   });
 }
 
-// Export for Vercel
+
 module.exports = app;
