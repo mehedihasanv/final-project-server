@@ -48,6 +48,9 @@ const users = db.collection("users");
 const contests = db.collection("contests");
 const payments = db.collection("payments");
 const submissions = db.collection("submissions");
+const blogs = db.collection("blogs");
+const contacts = db.collection("contacts");
+
 
 
 app.get("/", (req, res) => {
@@ -431,6 +434,55 @@ app.get("/test-db", async (req, res) => {
     });
   }
 });
+
+
+
+
+app.post("/blogs", async (req, res) => {
+  try {
+    await connectDB();
+    const result = await blogs.insertOne(req.body);
+    res.send({ success: true, result });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+
+app.get("/blogs", async (req, res) => {
+  try {
+    await connectDB();
+    const result = await blogs.find().toArray();
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+
+
+
+app.post("/contact", async (req, res) => {
+  try {
+    await connectDB();
+    const result = await contacts.insertOne(req.body);
+    res.send({ success: true, result });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+
+app.get("/contact", async (req, res) => {
+  try {
+    await connectDB();
+    const result = await contacts.find().toArray();
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
 
 
 if (process.env.NODE_ENV !== "production") {
